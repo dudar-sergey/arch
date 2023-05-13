@@ -1,0 +1,58 @@
+{% extends 'base.html.twig' %}
+{% block body %}
+    <div class="container">
+        <div class="row mt-5">
+            <div class="col-6">
+                <h3>Генерация отчета</h3>
+                <div class="card p-5 border-1">
+                    <label>
+                        От
+                        <input id="date_from" type="date" class="form-control">
+                    </label>
+                    <label>
+                        До
+                        <input id="date_to" type="date" class="form-control">
+                    </label>
+                    <br>
+                    <button class="btn btn-outline-primary" id="report_button">Получить отчет</button>
+                </div>
+            </div>
+            <div class="col-6">
+                <h3>Настройки</h3>
+                <div class="card p-5 border-1">
+                    <h5>Валюты для отчета</h5>
+                    {% for currency in currencies %}
+                        <div class="form-check">
+                            <input class="form-check-input currency" data-code="{{ currency.code }}" type="checkbox" {{ currency.active ? 'checked': '' }}>
+                            <label class="form-check-label" for="flexCheckDefault">
+                                {{ currency.code }}
+                            </label>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        const btn = document.getElementById('report_button')
+        const from = document.querySelector('#date_from')
+        const to = document.querySelector('#date_to')
+
+        btn.addEventListener('click', function (e) {
+            window.location = '/api/report?' + new URLSearchParams({
+                from: from.value,
+                to: to.value
+            }).toString()
+        })
+
+        const currencies = document.querySelectorAll('.currency')
+        currencies.forEach(function (currency) {
+            currency.addEventListener('change', function (e) {
+                fetch('/api/currency/active?' + new URLSearchParams({
+                    code: currency.dataset.code,
+                    active: Number(currency.checked)
+                }).toString())
+            })
+        })
+    </script>
+{% endblock %}
